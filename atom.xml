@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>郑勰的博客</title>
+  
+  <subtitle>zhengxiexie</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://www.zhengxiexie.club/"/>
+  <updated>2020-02-19T10:01:15.982Z</updated>
+  <id>https://www.zhengxiexie.club/</id>
+  
+  <author>
+    <name>郑勰</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>浅谈 CAP 和 Paxos 共识算法</title>
+    <link href="https://www.zhengxiexie.club/2019/11/13/consensus/"/>
+    <id>https://www.zhengxiexie.club/2019/11/13/consensus/</id>
+    <published>2019-11-13T11:04:00.000Z</published>
+    <updated>2020-02-19T10:01:15.982Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;浅谈-CAP-和-Paxos-共识算法&quot;&gt;&lt;a href=&quot;#浅谈-CAP-和-Paxos-共识算法&quot; class=&quot;headerlink&quot; title=&quot;浅谈 CAP 和 Paxos 共识算法&quot;&gt;&lt;/a&gt;浅谈 CAP 和 Paxos
+        
+      
+    
+    </summary>
+    
+      <category term="技术" scheme="https://www.zhengxiexie.club/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="分布式" scheme="https://www.zhengxiexie.club/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="CAP" scheme="https://www.zhengxiexie.club/tags/CAP/"/>
+    
+      <category term="共识" scheme="https://www.zhengxiexie.club/tags/%E5%85%B1%E8%AF%86/"/>
+    
+      <category term="Paxos" scheme="https://www.zhengxiexie.club/tags/Paxos/"/>
+    
+      <category term="Raft" scheme="https://www.zhengxiexie.club/tags/Raft/"/>
+    
+      <category term="ZAB" scheme="https://www.zhengxiexie.club/tags/ZAB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>宋词四首诵读</title>
+    <link href="https://www.zhengxiexie.club/2019/11/12/songcisishou/"/>
+    <id>https://www.zhengxiexie.club/2019/11/12/songcisishou/</id>
+    <published>2019-11-12T02:30:31.000Z</published>
+    <updated>2020-02-19T10:01:16.045Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;宋词四首诵读&quot;&gt;&lt;a href=&quot;#宋词四首诵读&quot; class=&quot;headerlink&quot; title=&quot;宋词四首诵读&quot;&gt;&lt;/a&gt;宋词四首诵读&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;1.jpg&quot; alt&gt;
+        
+      
+    
+    </summary>
+    
+      <category term="诗歌" scheme="https://www.zhengxiexie.club/categories/%E8%AF%97%E6%AD%8C/"/>
+    
+    
+      <category term="诗歌" scheme="https://www.zhengxiexie.club/tags/%E8%AF%97%E6%AD%8C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>暮秋入冬琐语</title>
+    <link href="https://www.zhengxiexie.club/2019/11/03/mu-qiu-ru-dong-suo-yu/"/>
+    <id>https://www.zhengxiexie.club/2019/11/03/mu-qiu-ru-dong-suo-yu/</id>
+    <published>2019-11-03T13:24:54.000Z</published>
+    <updated>2020-02-19T10:01:16.049Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;暮秋入冬琐语&quot;&gt;&lt;a href=&quot;#暮秋入冬琐语&quot; class=&quot;headerlink&quot; title=&quot;暮秋入冬琐语&quot;&gt;&lt;/a&gt;暮秋入冬琐语&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;div align=&quot;middle&quot;&gt;&lt;iframe
+        
+      
+    
+    </summary>
+    
+      <category term="散文" scheme="https://www.zhengxiexie.club/categories/%E6%95%A3%E6%96%87/"/>
+    
+    
+      <category term="散文" scheme="https://www.zhengxiexie.club/tags/%E6%95%A3%E6%96%87/"/>
+    
+  </entry>
+  
+</feed>
