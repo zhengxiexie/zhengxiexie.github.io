@@ -1,0 +1,1499 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="浅谈 CAP 和 Paxos 共识算法, Tencent CS Python ">
+    <meta name="baidu-site-verification" content="4XjwKsr2q7">
+    <meta name="google-site-verification" content="4XjwKsr2q7">
+    <meta name="360-site-verification" content>
+    <meta name="description" content="浅谈 CAP 和 Paxos 共识算法分布式共识是整个分布式系统中最为重要的问题，没有之一，本人想按照自己的理解用大白话讲一讲，既然是大白话，就非常不严谨，也很粗浅，有说的不对的地方，欢迎大佬拍砖，头盔已戴好。
+分布式、CAP、一致性、状态">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>浅谈 CAP 和 Paxos 共识算法 | 郑勰的博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?46e79e71af0709a5b9106bf20cecc493";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body>
+
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">郑勰的博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/简历" class="waves-effect waves-light">
+            
+            <span>简历</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/Resume" class="waves-effect waves-light">
+            
+            <span>Resume</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/contact" class="waves-effect waves-light">
+            
+            <span>留言板</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">郑勰的博客</div>
+        <div class="logo-desc">
+            
+            腾讯云 | 计算机科学与技术 | Python/C++/文艺/播音
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/简历" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                简历
+            </a>
+        </li>
+        
+        <li>
+            <a href="/Resume" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                Resume
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        <li>
+            <a href="/contact" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-link"></i>
+                
+                留言板
+            </a>
+        </li>
+        
+        
+    </ul>
+</div>
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        浅谈 CAP 和 Paxos 共识算法
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                        <a href="/tags/分布式/" target="_blank">
+                            <span class="chip bg-color">分布式</span>
+                        </a>
+                        
+                        <a href="/tags/CAP/" target="_blank">
+                            <span class="chip bg-color">CAP</span>
+                        </a>
+                        
+                        <a href="/tags/共识/" target="_blank">
+                            <span class="chip bg-color">共识</span>
+                        </a>
+                        
+                        <a href="/tags/Paxos/" target="_blank">
+                            <span class="chip bg-color">Paxos</span>
+                        </a>
+                        
+                        <a href="/tags/Raft/" target="_blank">
+                            <span class="chip bg-color">Raft</span>
+                        </a>
+                        
+                        <a href="/tags/ZAB/" target="_blank">
+                            <span class="chip bg-color">ZAB</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                        <a href="/categories/技术/" class="post-category" target="_blank">
+                            技术
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-11-13
+                </div>
+
+                <div class="post-author info-break-policy">
+                    <i class="fa fa-user-o fa-fw"></i>作者:&nbsp;&nbsp;
+                    
+                    郑勰
+                    
+                </div>
+
+                
+                
+                <div class="info-break-policy">
+                    <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    10 分
+                </div>
+                
+                
+
+                
+                <div id="busuanzi_container_page_pv" class="info-break-policy">
+                    <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                    <span id="busuanzi_value_page_pv"></span>
+                </div>
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="浅谈-CAP-和-Paxos-共识算法"><a href="#浅谈-CAP-和-Paxos-共识算法" class="headerlink" title="浅谈 CAP 和 Paxos 共识算法"></a>浅谈 CAP 和 Paxos 共识算法</h1><p>分布式共识是整个分布式系统中最为重要的问题，没有之一，本人想按照自己的理解用大白话讲一讲，既然是大白话，就非常不严谨，也很粗浅，有说的不对的地方，欢迎大佬拍砖，头盔已戴好。</p>
+<p>分布式、CAP、一致性、状态机、共识、Paxos、Raft、ZAB，想必这些名词大家已经烂熟于耳了，在感叹这些高逼格名词的同时，你是不是总感觉这些名词有点混淆不清、模棱两可的赶脚？如果有，请听我慢慢道来。（没有？好吧，您是大佬，请果断 command+w。）</p>
+<hr>
+<h1 id="什么是-CAP"><a href="#什么是-CAP" class="headerlink" title="什么是 CAP"></a>什么是 CAP</h1><p><img src="Distributed_system_CAP-iteblog-ac864baa-9770-40b5-aaf0-432e011fafc6.png" alt></p>
+<p>CAP 理论的背景介绍已经烂大街了，这里不过多介绍。我们谈谈如何理解它的问题，关于这方面，我觉得解释最清楚的是油管上某个小哥的视频：</p>
+<p><a href="https://www.youtube.com/watch?v=Jw1iFr4v58M" target="_blank" rel="noopener">https://www.youtube.com/watch?v=Jw1iFr4v58M</a></p>
+<h2 id="用人话解释三个名词："><a href="#用人话解释三个名词：" class="headerlink" title="用人话解释三个名词："></a>用人话解释三个名词：</h2><h3 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a><strong>一致性</strong></h3><p>如果刚刚向一个节点写入，那么之后，从另外一个节点读取的必须是刚刚写入的数据，不能是更老的数据。</p>
+<h3 id="可用性"><a href="#可用性" class="headerlink" title="可用性"></a><strong>可用性</strong></h3><p>如果请求一个节点，这个节点必须能够给予回复，如果节点挂掉了，那就谈不上可用性了。</p>
+<h3 id="分区容忍性"><a href="#分区容忍性" class="headerlink" title="分区容忍性"></a><strong>分区容忍性</strong></h3><p>是否容忍网络分区，即可以允许节点和其它节点无法通信。</p>
+<p>CAP 的意思就是说我们最多只能保证其中两个条件同时成立。</p>
+<p>下面我们来看看为什么。</p>
+<p><img src="Untitled-75e05e42-d661-4446-9120-ae13749b1535.png" alt></p>
+<p>如图所示，假如我们满足了分区容忍性，即虚线处表示两个节点发生了分区。</p>
+<ol>
+<li><strong>假如要满足一致性</strong>，那么，我们只能让请求另一个节点的操作暂时 hang 住，返回 client 失败或者超时的结果，这种情况多发生在银行柜台等对数据一致性要求很高的情境下，因为比起保证用户资金数目的正确性比暂时让用户无法操作要更重要一些。</li>
+<li><strong>假如要满足可用性</strong>，因为网络已经隔离，也就没办法达到一致性，这种情况多发生在互联网行业中，比如新闻等对数据一致性要求不高但对可用性要求高的情况下，毕竟，用户压根看不了新闻比看不到及时新闻要重要的多。</li>
+</ol>
+<p>大家可以自己自由组合，最终会证明，三种条件不可能同时满足，其实大部分情况下，我们都是在一致性和可用性之间取舍而已。</p>
+<p><img src="Untitled-de737321-ffd8-4e8d-b3f7-3d5483db237e.png" alt></p>
+<h1 id="Consistency-Consensus"><a href="#Consistency-Consensus" class="headerlink" title="Consistency = Consensus?"></a>Consistency = Consensus?</h1><p>Consistency几乎被业界用烂了，以至于当我们在讨论一致性的时候，其实我们都无法确定对方所说的一致性是不是和自己的那个一致。😅</p>
+<p><strong>Consistency：一致性，Consensus：协同，</strong>这两个概念极容易混淆。</p>
+<p>我们常说的一致性（Consistency）在分布式系统中指的是对于同一个数据的多个副本，其对外表现的数据一致性，如线性一致性、因果一致性、最终一致性等，都是用来描述副本问题中的一致性的。而共识（Consensus）则不同，简单来说，共识问题是要经过某种算法使多个节点达成相同状态的一个过程。在我看来，一致性强调结果，共识强调过程。</p>
+<p><img src="Distributed_system_Consistency_model-iteblog-392cde62-0df4-41ab-a200-8699a871dd03.jpg" alt></p>
+<h1 id="共识？状态机？什么鬼？"><a href="#共识？状态机？什么鬼？" class="headerlink" title="共识？状态机？什么鬼？"></a>共识？状态机？什么鬼？</h1><p><img src="Untitled-a17735d5-49dd-4565-8bbf-271c080e18a5.png" alt></p>
+<p>Ken Thompson</p>
+<p>共识有个更高逼格的称呼：</p>
+<h3 id="基于状态机复制的共识算法"><a href="#基于状态机复制的共识算法" class="headerlink" title="基于状态机复制的共识算法"></a>基于状态机复制的共识算法</h3><p>大牛们最擅长做的事就是把各种简单的问题用个高逼格的专业术语把你拒之门外，就好比 CCAV 里的各种指数其实说白了就是告诉你央行大妈又要放水了。</p>
+<p>那么，状态机是什么？</p>
+<p>状态机是有限状态自动机的简称，是现实事物运行规则抽象而成的一个数学模型。</p>
+<p>说人话，好不？好，看下图，门，有两种状态，开着的和关着的。因此，在我看来状态是一种静态的场景，而转换赋予了其动态的变化。</p>
+<p><img src="Untitled-b4f0cf74-00d2-4eba-968f-619a4ed257da.png" alt></p>
+<p>以此类比一下，如果一个节点当前的数据是 X，现在有了 add+1 的操作日志来了，那么现在的状态就是 X+1，好了，状态（X）有了，变化（操作日志）有了，这就是状态机。</p>
+<p>分布式共识，简单来说，就是在一个或多个节点提议了一个状态应当是什么后，系统中所有节点对这个状态达成一致意见的整个过程。</p>
+<p>共识是过程，一致是结果，明白了吗？</p>
+<h1 id="共识模型"><a href="#共识模型" class="headerlink" title="共识模型"></a>共识模型</h1><h2 id="主从同步："><a href="#主从同步：" class="headerlink" title="主从同步："></a>主从同步：</h2><p><img src="Untitled-9ad779df-cde7-402f-8ca0-31cf1807e0e7.png" alt></p>
+<p>我们都知道MySQL等业界常见数据库的主从同步（Master-Slave Replication)，主从同步分三个阶段：</p>
+<ul>
+<li>Master 接受写请求</li>
+<li>Master 复制日志至 Slave</li>
+<li>Master 等待，直到<strong>所有从库</strong>返回。</li>
+</ul>
+<p>可见，主从同步模型存在致命问题：只要一个节点失败，则 Master 就会阻塞，导致整个集群不可用，保证了一致性，可用性缺大大降低了。</p>
+<h2 id="多数派："><a href="#多数派：" class="headerlink" title="多数派："></a>多数派：</h2><p>每次写入大于 N/2个节点，每次读也保证从 N/2个节点中读。多数派的模型看似完美解决了多节点的一致性问题，不就是性能差点嘛，可是在并发的情况下就不一定了，如下图：</p>
+<p><img src="Untitled-43522eca-aed6-4148-bc7c-499ba25e2284.png" alt></p>
+<p>在并发环境下，因为每个节点的操作日志写入顺序无法保证一致，也就无法保证最终的一致性。如图，都是向三个节点 inc5、set0 两个操作，但因为顺序不一样，最终状态两个是 0，一个是 5。因此我们需要引入一种机制，给每个操作日志编上号，这个号从小到大生成，这样，每个节点就不会弄错。（是否想到了网络中的分包与重组？）那么，现在关键问题又来了，怎么协同这个编号？貌似这是鸡生蛋、蛋生鸡的问题。😂</p>
+<h1 id="Paxos"><a href="#Paxos" class="headerlink" title="Paxos"></a>Paxos</h1><p>Paxos 模型试图探讨分布式共识问题的一个更一般的形式。</p>
+<p>Lesile Lamport，Latex的发明者，提出了 Paxos算法。他虚拟了一个叫做 Paxos 的希腊城邦，这个岛按照议会民主制的政治模式制定法律，但是没有人愿意将自己的全部时间和精力放在这件事上。所以无论是议员、议长或者传递纸条的服务员都不能承诺别人需要时一定会出现，也无法承诺批准决议后者传递消息的时间。由于Paxos 让人太难以理解，Lamport觉得同行不能理解他的幽默感，于是后来又重新发表了朴实的算法描述版本<a href="https://www.notion.so/CAP-Paxos-55dad97e36154e20895e26495fff49ec#891d9af87884442fbf2adaa36b9f9454" target="_blank" rel="noopener">《Paxos Made Simple》</a>。</p>
+<p><img src="Untitled-4a4eaa95-1ce8-4bbd-89c9-700ad82641db.png" alt></p>
+<p>该共识算法就整体来说，存在两个阶段，如图，第一个阶段是提议，第二个阶段是决定。</p>
+<blockquote>
+<p>分布式系统要做到 fault tolorence，就需要共识模型，而节点达成共识，不仅需要节点之间的算法，还会取决于 client 的行为。比如即使副本系统使用multi-paxos在所有副本服务器上同步了日志序号，但如果Client被允许从非Leader节点写入数据，则整个副本系统仍然不是强一致的。</p>
+</blockquote>
+<p>下面，重头戏来了，详细介绍 Paxos。</p>
+<h3 id="角色介绍："><a href="#角色介绍：" class="headerlink" title="角色介绍："></a>角色介绍：</h3><p><strong>Client：</strong>系统外部角色，请求发起者。如民众。</p>
+<p><strong>Proposer:</strong>  接受Client 请求，向集群提出提议（propose）。并在冲突发生时，起到冲突调节的作用。如议员，替民众提出议案。</p>
+<p><strong>Accpetor:</strong>  提议投票和接收者，只有在形成法定人数（Quorum，即 Majority 多数派）时，提议才会最终被接受。如国会。</p>
+<p><strong>Learner:</strong>  提议接受者，backup，备份，对集群的一致性没影响。如记录员。</p>
+<h3 id="步骤、阶段："><a href="#步骤、阶段：" class="headerlink" title="步骤、阶段："></a>步骤、阶段：</h3><p><img src="Untitled-a6750265-7683-4067-8d61-206f696acc69.png" alt></p>
+<ol>
+<li><p><strong>Phase1a: Prepare</strong></p>
+<p> proposer 提出一个议案，编号为 N，N一定大于这个 proposer 之前提出的提案编号，请求 acceptor 的 quorum（大多数） 接受。</p>
+</li>
+<li><p><strong>Phase1b: Promise</strong></p>
+<p> 如果 N 大于此 acceptor 之前接受的任何提案编号则接受，否则拒绝。</p>
+</li>
+<li><p><strong>Phase2a: Accept</strong></p>
+<p> 如果达到了多数派，proposer 会发出 accept 请求，此请求包含上一步的提案编号和提案内容。</p>
+</li>
+<li><p><strong>Phase2b: Accepted</strong></p>
+<p> 如果此 acceptor 在此期间没有收到任何大于 N 的提案，则接受此提案内容，否则忽略。</p>
+</li>
+</ol>
+<p>还记得上文中我们提到过，同步编号是非常重要的问题，绿色框出来的实际上就是同步编号的过程。通过这个编号，就知道每条操作日志的先后顺序。简单说来，<strong>第一阶段，获取编号，第二阶段，写入日志。</strong>可以看出来，Paxos 通过两轮交互，牺牲时间和性能来达到弥补一致性的问题。</p>
+<p>现在我们考虑部分节点down 掉的情景。</p>
+<p><img src="Untitled-9d3289bb-0f85-43cb-913e-5c3690982bf5.png" alt></p>
+<p>由于是多数派 accptor 达成了一致，第一阶段仍然成功获得了编号，所有最终还是成功的。</p>
+<p>考虑 proposer down 掉的情景。</p>
+<p><img src="Untitled-03b14664-4015-4295-9be4-ed16042a68b7.png" alt></p>
+<p>没关系，虽然第一个 proposer 失败，但下一个 proposer 用更大的提案编号，所以下一次 proposer最终还是成功了，仍然保证了可用性和一致性。</p>
+<h3 id="潜在问题：活锁"><a href="#潜在问题：活锁" class="headerlink" title="潜在问题：活锁"></a>潜在问题：活锁</h3><p><img src="Untitled-12f560d2-d186-4995-8545-bad7909240b7.png" alt></p>
+<p>Paxos 存在活锁问题。如图，当 第一个proposer 在第一阶段发出请求，还没来得及后续的第二阶段请求，紧接着第二个proposer 在第一阶段也发出请求，如果这样无穷无尽，acceptor 始终停留在决定顺序号的过程上，那大家谁也成功不了，遇到这样的问题，其实很好解决，如果发现顺序号被新的 proposer 更新了，则引入一个随机的等待的超时时间，这样就避免了多个 proposer 发生冲突的问题。</p>
+<h1 id="Multi-Paxos"><a href="#Multi-Paxos" class="headerlink" title="Multi Paxos"></a>Multi Paxos</h1><p>由于Paxos 存在的问题：难实现、效率低（2 轮 rpc）、活锁。</p>
+<p>因此又引入了Multi Paxos，Multi Paxos引入 Leader，也就是<strong>唯一的 proposer</strong>，所有的请求都需经过此 Leader。</p>
+<p><img src="Untitled-2a2f06c4-1305-44ec-98ea-94a532d36d56.png" alt></p>
+<p>因为只有一个节点维护提案编号，这样，就省略了第一轮讨论提议编号的过程。</p>
+<p>然后进一步简化角色。</p>
+<p><img src="Untitled-e36f718a-403c-40fc-adfe-423e7d7e6836.png" alt></p>
+<p>Servers 中第左边的就是 Proposer，另外两个和自身充当 acceptor，这样就更像我们真实的系统了。Raft 和 ZAB协议其实基本上和这个一致，两者的差别很小，就是心跳的方向不一样。</p>
+<h1 id="Raft和-ZAB"><a href="#Raft和-ZAB" class="headerlink" title="Raft和 ZAB"></a>Raft和 ZAB</h1><p>Raft 和 ZAB 协议将 Multi Paxos 划分了三个子问题：</p>
+<ul>
+<li>Leader Election</li>
+<li>Log Replication</li>
+<li>Safety</li>
+</ul>
+<p>在 leader 选举的过程中，也重定义角色：</p>
+<ul>
+<li>Leader</li>
+<li>Follower</li>
+<li>Candidate</li>
+</ul>
+<p><a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener">这个动画网站</a>生动展示了 leader 选举和日志复制的过程。在这里就不多讲了。</p>
+<p>另外，<a href="https://raft.github.io/" target="_blank" rel="noopener">raft 官方网站</a>可以自己操作模拟选举的过程。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>今天，我们从 CAP 谈到 Raft 和 ZAB，中间穿插了各种名词，模型无论怎么变化，我们始终只有一个目的，那就是在一个 fault torlerance 的分布式架构下，如何尽量保证其整个系统的可用性和一致性。最理想的模型当然是 Paxos，然而理论到落地还是有差距的，所以诞生了 Raft 和 ZAB，虽然只有一个 leader，但我们允许 leader 挂掉可以重新选举 leader，这样，中心式和分布式达到了一个妥协。<br><br><br><br><br></p>
+<hr>
+<p><em>参考资料：</em></p>
+<p><a href="http://blog.kongfy.com/2016/08/%E8%A2%AB%E8%AF%AF%E7%94%A8%E7%9A%84%E4%B8%80%E8%87%B4%E6%80%A7/" target="_blank" rel="noopener"><em>http://blog.kongfy.com/2016/08/被误用的一致性/</em></a></p>
+<p><a href="http://blog.kongfy.com/2016/05/%e5%88%86%e5%b8%83%e5%bc%8f%e5%85%b1%e8%af%86consensus%ef%bc%9aviewstamped%e3%80%81raft%e5%8f%8apaxos/" target="_blank" rel="noopener"><em>http://blog.kongfy.com/2016/05/分布式共识consensus：viewstamped、raft及paxos/</em></a></p>
+<p><a href="https://lotabout.me/2019/Raft-Consensus-Algorithm/" target="_blank" rel="noopener"><em>https://lotabout.me/2019/Raft-Consensus-Algorithm/</em></a></p>
+<p><a href="https://raft.github.io/" target="_blank" rel="noopener"><em>https://raft.github.io/</em></a></p>
+<p><a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener"><em>http://thesecretlivesofdata.com/raft/</em></a></p>
+
+            </div>
+            <hr />
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">写作不易，客官能否打赏一杯奶茶？</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《浅谈 CAP 和 Paxos 共识算法》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/11/13/consensus/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                郑勰
+            </a> 采用
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+    <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: '4a150420888cf37c4b2f',
+        clientSecret: '527d8767b9430dab71a816dc902f22e5399fb6cf',
+        repo: 'zhengxiexie.github.io',
+        owner: 'zhengxiexie',
+        admin: "zhengxiexie",
+        id: '2019/11/13/consensus/',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+    <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+
+    #vcomments input[type=text],
+    #vcomments input[type=email],
+    #vcomments input[type=url],
+    #vcomments textarea {
+        box-sizing: border-box;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #42b983;
+        font-weight: 500;
+        text-decoration: underline;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div id="vcomments" class="card-content"></div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<!-- <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script> -->
+
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: '',
+        appKey: '',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'false' === 'true',
+        avatar: 'wavatar',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: '如果你没有GitHub账号，还可以在这里评论啦！'
+    });
+</script>
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2019/11/13/consensus/">
+                    <div class="card-image">
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="浅谈 CAP 和 Paxos 共识算法">
+                        
+                        <span class="card-title">浅谈 CAP 和 Paxos 共识算法</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            浅谈 CAP 和 Paxos 共识算法分布式共识是整个分布式系统中最为重要的问题，没有之一，本人想按照自己的理解用大白话讲一讲，既然是大白话，就非常不严谨，也很粗浅，有说的不对的地方，欢迎大佬拍砖，头盔已戴好。
+分布式、CAP、一致性、状态
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-11-13
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/技术/" class="post-category" target="_blank">
+                                    技术
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/分布式/" target="_blank">
+                        <span class="chip bg-color">分布式</span>
+                    </a>
+                    
+                    <a href="/tags/CAP/" target="_blank">
+                        <span class="chip bg-color">CAP</span>
+                    </a>
+                    
+                    <a href="/tags/共识/" target="_blank">
+                        <span class="chip bg-color">共识</span>
+                    </a>
+                    
+                    <a href="/tags/Paxos/" target="_blank">
+                        <span class="chip bg-color">Paxos</span>
+                    </a>
+                    
+                    <a href="/tags/Raft/" target="_blank">
+                        <span class="chip bg-color">Raft</span>
+                    </a>
+                    
+                    <a href="/tags/ZAB/" target="_blank">
+                        <span class="chip bg-color">ZAB</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/11/12/songcisishou/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="宋词四首诵读">
+                        
+                        <span class="card-title">宋词四首诵读</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            宋词四首诵读
+ 
+
+
+
+
+《蝶恋花·槛菊愁烟兰泣露》 晏殊  槛菊愁烟兰泣露, 罗幕轻寒, 燕子双飞去。 明月不谙离恨苦, 斜光到晓穿朱户。昨夜西凤凋碧树, 独上高楼, 望尽天涯路。 欲寄彩笼兼尺素, 山长水阔知何处!  
+《蝶恋花·伫倚危
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-11-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/诗歌/" class="post-category" target="_blank">
+                                    诗歌
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/诗歌/" target="_blank">
+                        <span class="chip bg-color">诗歌</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 郑勰的博客<br />'
+            + '作者: 郑勰<br />'
+            + '链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () { bodyElement.removeChild(newdiv); }, 200);
+    });
+</script>
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\(', '\)']]}
+    });
+</script>
+
+    <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            &copy; 2019 Zhengxiexie. All Rights Reserved.
+
+            
+            &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;
+            <span class="white-color">4.2k</span>
+            
+
+            <br>
+            <span id="sitetime"></span>
+
+            
+            
+            <br>
+            
+            <span id="busuanzi_container_site_pv" style='display:none'>
+                <i class="fa fa-heart-o"></i>
+                本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv" style='display:none'>
+                人次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+            </span>
+            
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/zhengxiexie" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+
+
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+<!-- 不蒜子计数初始值纠正 -->
+<script>
+    $(document).ready(function () {
+
+        var int = setInterval(fixCount, 50);
+        var pvcountOffset = 100;
+        var uvcountOffset = 100;
+
+        function fixCount() {
+            if (document.getElementById("busuanzi_container_site_pv").style.display != "none") {
+                $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvcountOffset);
+                clearInterval(int);
+            }
+            if ($("#busuanzi_container_site_pv").css("display") != "none") {
+                $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvcountOffset); // 加上初始数据 
+                clearInterval(int);
+            }
+        }
+    });
+</script>
+
+<script language=javascript>
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+        var t1 = Date.UTC(2019, 11, 2, 10, 29, 56); //
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes * minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = "本站已运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+    }/*因为建站时间还没有一年，就将之注释掉了。需要的可以取消*/
+    siteTime();
+</script>
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <script type="text/javascript"> var OriginTitile = document.title, st; document.addEventListener("visibilitychange", function () { document.hidden ? (document.title = "Σ(っ °Д °;)っ喔哟，崩溃啦！", clearTimeout(st)) : (document.title = "φ(゜▽゜*)♪咦，又好了！", st = setTimeout(function () { document.title = OriginTitile }, 3e3)) })
+    </script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', '');
+</script>
+
+
+
+    
+
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    <!-- 雪花特效 -->
+    
+
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>郑勰的博客</title>
+  
+  <subtitle>Engineering, art and everything</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://zhengxiexie.github.io/"/>
+  <updated>2022-11-18T07:58:21.454Z</updated>
+  <id>https://zhengxiexie.github.io/</id>
+  
+  <author>
+    <name>郑勰</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>浅谈 CAP 和 Paxos 共识算法</title>
+    <link href="https://zhengxiexie.github.io/2019/11/13/consensus/"/>
+    <id>https://zhengxiexie.github.io/2019/11/13/consensus/</id>
+    <published>2019-11-13T11:04:00.000Z</published>
+    <updated>2022-11-18T07:58:21.454Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;浅谈-CAP-和-Paxos-共识算法&quot;&gt;&lt;a href=&quot;#浅谈-CAP-和-Paxos-共识算法&quot; class=&quot;headerlink&quot; title=&quot;浅谈 CAP 和 Paxos 共识算法&quot;&gt;&lt;/a&gt;浅谈 CAP 和 Paxos
+        
+      
+    
+    </summary>
+    
+      <category term="技术" scheme="https://zhengxiexie.github.io/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="分布式" scheme="https://zhengxiexie.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="CAP" scheme="https://zhengxiexie.github.io/tags/CAP/"/>
+    
+      <category term="共识" scheme="https://zhengxiexie.github.io/tags/%E5%85%B1%E8%AF%86/"/>
+    
+      <category term="Paxos" scheme="https://zhengxiexie.github.io/tags/Paxos/"/>
+    
+      <category term="Raft" scheme="https://zhengxiexie.github.io/tags/Raft/"/>
+    
+      <category term="ZAB" scheme="https://zhengxiexie.github.io/tags/ZAB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>宋词四首诵读</title>
+    <link href="https://zhengxiexie.github.io/2019/11/12/songcisishou/"/>
+    <id>https://zhengxiexie.github.io/2019/11/12/songcisishou/</id>
+    <published>2019-11-12T02:30:31.000Z</published>
+    <updated>2022-11-18T07:58:21.550Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;宋词四首诵读&quot;&gt;&lt;a href=&quot;#宋词四首诵读&quot; class=&quot;headerlink&quot; title=&quot;宋词四首诵读&quot;&gt;&lt;/a&gt;宋词四首诵读&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;1.jpg&quot; alt&gt;
+        
+      
+    
+    </summary>
+    
+      <category term="诗歌" scheme="https://zhengxiexie.github.io/categories/%E8%AF%97%E6%AD%8C/"/>
+    
+    
+      <category term="诗歌" scheme="https://zhengxiexie.github.io/tags/%E8%AF%97%E6%AD%8C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>暮秋入冬琐语</title>
+    <link href="https://zhengxiexie.github.io/2019/11/03/mu-qiu-ru-dong-suo-yu/"/>
+    <id>https://zhengxiexie.github.io/2019/11/03/mu-qiu-ru-dong-suo-yu/</id>
+    <published>2019-11-03T13:24:54.000Z</published>
+    <updated>2022-11-18T07:58:21.554Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;暮秋入冬琐语&quot;&gt;&lt;a href=&quot;#暮秋入冬琐语&quot; class=&quot;headerlink&quot; title=&quot;暮秋入冬琐语&quot;&gt;&lt;/a&gt;暮秋入冬琐语&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;div align=&quot;middle&quot;&gt;&lt;iframe
+        
+      
+    
+    </summary>
+    
+      <category term="散文" scheme="https://zhengxiexie.github.io/categories/%E6%95%A3%E6%96%87/"/>
+    
+    
+      <category term="散文" scheme="https://zhengxiexie.github.io/tags/%E6%95%A3%E6%96%87/"/>
+    
+  </entry>
+  
+</feed>
